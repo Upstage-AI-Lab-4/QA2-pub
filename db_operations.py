@@ -12,22 +12,14 @@ def insert_data_bulk(values):
     insert_sql = """
     INSERT INTO airtable 
     (flight_number, airline, flight_date, STD, Departure, Arrival) 
-    VALUES (%s, %s, %s, %s, %s, %s)
+    VALUES (%(flight_number)s, %(airline)s, %(flight_date)s, %(STD)s, %(Departure)s, %(Arrival)s)
     """
     conn = pymysql.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=DB_NAME)
     try:
         with conn.cursor() as cur:
-            cur.executemany(insert_sql, [
-                (
-                    data.get('flight_number'),
-                    data.get('airline'),
-                    data.get('flight_date'),
-                    data.get('STD'),
-                    data.get('Departure'),
-                    data.get('Arrival')
-                ) for data in values
-            ])
+            cur.executemany(insert_sql, values)
         conn.commit()
+        print(f"Successfully inserted {len(values)} records")
     except Exception as e:
         print(f"Error inserting data: {e}")
         conn.rollback()

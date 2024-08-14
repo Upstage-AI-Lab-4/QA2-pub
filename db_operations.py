@@ -11,8 +11,8 @@ def insert_data_bulk(values):
     print("Insert bulk data")
     insert_sql = """
     INSERT INTO airtable 
-    (flight_number, airline, flight_date, STD, Departure, Arrival) 
-    VALUES (%(flight_number)s, %(airline)s, %(flight_date)s, %(STD)s, %(Departure)s, %(Arrival)s)
+    (flight_number, airline, flight_date, STD, Departure, ARRIVAL, IO) 
+    VALUES (%(flight_number)s, %(airline)s, %(flight_date)s, %(STD)s, %(Departure)s, %(ARRIVAL)s, %(IO)s)
     """
     conn = pymysql.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=DB_NAME)
     try:

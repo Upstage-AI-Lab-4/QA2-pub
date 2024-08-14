@@ -10,10 +10,16 @@ def embed_model_init():
 def llm_init():
     return ChatUpstage(api_key=config.API_KEY)
 
-def KAC_api():
+def KAC_Departure_api():
     KAC_api_key = config.DATA_API_KEY
-    flight_date = 20240812
-    url = f'https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail?serviceKey={KAC_api_key}&cond%5BFLIGHT_DATE%3A%3AEQ%5D={flight_date}'
+    flight_date = datetime.today().strftime('%Y%m%d')
+    url = f'https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail?serviceKey={KAC_api_key}&cond%5BFLIGHT_DATE%3A%3AEQ%5D={flight_date}&cond%5BIO%3A%3AEQ%5D=o'
+    return requests.get(url).json()
+
+def KAC_Arrival_api():
+    KAC_api_key = config.DATA_API_KEY
+    flight_date = datetime.today().strftime('%Y%m%d')
+    url = f'https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail?serviceKey={KAC_api_key}&cond%5BFLIGHT_DATE%3A%3AEQ%5D={flight_date}&cond%5BIO%3A%3AEQ%5D=i'
     return requests.get(url).json()
 
 def IIAC_Arrival_api():

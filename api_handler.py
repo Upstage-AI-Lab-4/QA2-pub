@@ -9,3 +9,39 @@ def embed_model_init():
 
 def llm_init():
     return ChatUpstage(api_key=config.API_KEY)
+
+def KAC_api():
+    KAC_api_key = config.DATA_API_KEY
+    flight_date = 20240812
+    url = f'https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail?serviceKey={KAC_api_key}&cond%5BFLIGHT_DATE%3A%3AEQ%5D={flight_date}'
+    return requests.get(url).json()
+
+def IIAC_Arrival_api():
+    IIAC_api_key = config.DATA_API_KEY
+    url = 'http://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp'
+    params ={
+        'serviceKey' : IIAC_api_key,
+        'from_time' : '0000',
+        'to_time' : '2400',
+        'airport' : '',
+        'flight_id' : '',
+        'airline' : 'KE',
+        'lang' : 'E',
+        'type' : 'json'
+    }
+    return requests.get(url=url, params=params).json()
+
+def IIAC_Departure_api():
+    IIAC_api_key = config.DATA_API_KEY
+    url = 'http://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerDeparturesOdp'
+    params ={
+        'serviceKey' : IIAC_api_key,
+        'from_time' : '0000',
+        'to_time' : '2400',
+        'airport' : '',
+        'flight_id' : '',
+        'airline' : 'KE',
+        'lang' : 'E',
+        'type' : 'json'
+    }
+    return requests.get(url=url, params=params).json()

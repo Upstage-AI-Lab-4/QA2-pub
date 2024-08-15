@@ -48,7 +48,7 @@ def main():
         print(sample_data[0])
 
     # 쿼리 받아서 내보내는 것 예시 코드
-    select_query = "SELECT * FROM airtable LIMIT 10"
+    select_query = "SELECT * FROM flights LIMIT 10"
     results = select_data(select_query)
     print("Sample data from database:")
     for row in results:

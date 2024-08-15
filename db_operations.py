@@ -10,7 +10,7 @@ DB_NAME = "airplain_RDB"
 def insert_data_bulk(values):
     print("Insert bulk data")
     insert_sql = """
-    INSERT INTO airtable 
+    INSERT INTO flights
     (flight_number, airline, flight_date, STD, Departure, ARRIVAL, IO) 
     VALUES (%(flight_number)s, %(airline)s, %(flight_date)s, %(STD)s, %(Departure)s, %(ARRIVAL)s, %(IO)s)
     """

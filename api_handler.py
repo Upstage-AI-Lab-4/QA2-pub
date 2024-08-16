@@ -18,7 +18,6 @@ def KAC_Departure_api(flight_date=datetime.today().strftime('%Y%m%d')):
     flight_date = flight_date
     url = f'https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail?perPage=1000&cond%5BFLIGHT_DATE%3A%3AEQ%5D={flight_date}&cond%5BIO%3A%3AEQ%5D=o&serviceKey={KAC_api_key}'
     flight_dict = requests.get(url).json()
-    print(flight_dict)
     flight_list = flight_dict['data']
 
     m_flight_list = []

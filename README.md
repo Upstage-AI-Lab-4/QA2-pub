@@ -72,10 +72,10 @@
 
 - 인천국제공항공사(IIAC), 여객편 운항현황 서비스
   - [인천공항 여객편의 운항현황에 대한 데이터로 항공사, 항공편, 출발/도착 시간 및 공항명, 탑승구 번호와 운항상태 등의 항목을 제공하는 서비스](https://www.data.go.kr/data/15095093/openapi.do) 이며 국내선 위주의 운항정보가 전달됩니다.
-  - API : http://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp
+  - API : http://api.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp
   - ![Response JSON](./resource/response_json_iiac.png)
 
-
+- 
 
 ### DB scheme
 - RAG용으로 저장된 Database Scheme 
@@ -129,6 +129,10 @@
    - 주요 기능 : 외부 데이터를 DB에 저장
    - 설명 : 외부 데이터를 받아 DB에 저장 및 조회합니다.
 
+4.
+
+5. 
+
 
 
 <br>
@@ -166,7 +170,7 @@
 ## 5. 개발 기간 및 작업 관리
 
 ### 개발 기간
-- 전체 개발 기간 : 2024-08-12 ~ 2024-08-19
+- 전체 개발 기간 : 2024-08-12 ~ 2024-08-18
 - 기능 구현 : 2024-08-12 ~ 2024-08-18
 - 그외 기간 작성
   

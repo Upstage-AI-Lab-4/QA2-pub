@@ -16,9 +16,6 @@
 import rag_retriever
 # Query to SQL library
 import config
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-
 
 # Response를 얻기 위한 library
 from langchain_upstage import ChatUpstage
@@ -70,7 +67,7 @@ def final_query(query,api_key):
             """
     ),
     HumanMessage(
-        content= user_query
+        content= query
     )
     ]
     response = llm.invoke(messages)
@@ -88,9 +85,3 @@ if __name__== "__main__":
     print(result)
     user_query += "Data:" + str(result)
     print(final_query(user_query,llm_api_key))
-
- 
- 
- 
-
-

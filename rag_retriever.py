@@ -1,38 +1,33 @@
-import sqlite3
-import pandas as pd
+import mysql.connector
+from db_operations import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
 
-def execute_sql_query(query):
-    #make_sample_database()
-    # CSV 파일을 읽어오기
-    csv_file = 'flights.csv'  # CSV 파일 경로
-    df = pd.read_csv(csv_file)
+class RAGRetriever:
+    def __init__(self, embedding_model):
+        self.embedding_model = embedding_model
+        self.db_config = {
+            'host': DB_HOST,
+            'user': DB_USER,
+            'password': DB_PASSWORD,
+            'database': DB_NAME
+        }
 
-    # SQLite3 데이터베이스 파일에 연결
-    conn = sqlite3.connect('flights.db')  # SQLite 데이터베이스 파일 경로
-
-    # DataFrame을 SQLite3 데이터베이스로 저장
-    df.to_sql('flights', conn, if_exists='replace', index=False) 
-    try:
-        # SQLite 데이터베이스 연결 설정
+    def execute_sql_query(self, query):
+        try:
+            conn = mysql.connector.connect(**self.db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(query)
+            result = cursor.fetchall()
         
-        cursor = conn.cursor()
-        # 쿼리 실행
+            # 결과를 보기 좋게 포맷팅
+            formatted_result = []
+            for row in result:
+                formatted_row = ", ".join([f"{k}: {v}" for k, v in row.items()])
+                formatted_result.append(formatted_row)
         
-        cursor.execute(query)
-        # 쿼리 실행 후 데이터가 있을 경우 fetchall()
-        #if cursor.description:
-        result = cursor.fetchall()
-        return result
-       # else:
-            #connection.commit()  # 데이터베이스에 변화를 주는 쿼리의 경우
-            #return "Query executed successfully"
-
-    except sqlite3.Error as e:
-        return f"Error: {e}"
-
-    finally:
-        if conn:
-            cursor.close()
-            conn.close()
-
-
+            return "\n".join(formatted_result)
+        except mysql.connector.Error as e:
+            return f"Database error: {e}"
+        finally: # ??
+            if conn.is_connected():
+                cursor.close()
+                conn.close()

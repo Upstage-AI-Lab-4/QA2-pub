@@ -64,19 +64,35 @@
 ### 외부 API
 
 - 한국공항공사(KAC), 실시간 항공운항 현황 정보 상세 조회 서비스
-  - https://www.data.go.kr/data/15113771/openapi.do
-  - 국내선 위주 
-  - 한국공항공사에서 제공하는 항공기 지연, 결항 등 항공기 상태정보와 항공편 정보를 보다 자세하게 알 수 있는 항공운항정보 상세조회 서비스입니다.
+  - [한국공항공사에서 제공하는 항공기 지연, 결항 등 항공기 상태정보와 항공편 정보를 보다 자세하게 알 수 있는 항공운항정보 상세조회 서비스](https://www.data.go.kr/data/15113771/openapi.do) 이며 국내선 위주의 운항정보가 전달됩니다.
+  - 국내선 위주의 운항정보가 전달됩니다.
   - API : https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail  
   - ![Response JSON](./resource/response_json_kac.png)
 
 
 - 인천국제공항공사(IIAC), 여객편 운항현황 서비스
-  - https://www.data.go.kr/data/15095093/openapi.do#
-  - 국제선 위주
-  - 인천공항 여객편의 운항현황에 대한 데이터로 항공사, 항공편, 출발/도착 시간 및 공항명, 탑승구 번호와 운항상태 등의 항목을 제공하는 서비스입니다.
+  - [인천공항 여객편의 운항현황에 대한 데이터로 항공사, 항공편, 출발/도착 시간 및 공항명, 탑승구 번호와 운항상태 등의 항목을 제공하는 서비스](https://www.data.go.kr/data/15095093/openapi.do) 이며 국내선 위주의 운항정보가 전달됩니다.
   - API : http://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp
   - ![Response JSON](./resource/response_json_iiac.png)
+
+
+
+### DB scheme
+- RAG용으로 저장된 Database Scheme 
+
+  ```sql
+  CREATE TABLE `flights` (
+    `key_value` int NOT NULL AUTO_INCREMENT,
+    `flight_number` varchar(20) NOT NULL COMMENT '운항편 번호',
+    `airline` varchar(100) NOT NULL COMMENT '항공사',
+    `flight_date` date NOT NULL COMMENT '운항일',
+    `STD` time NOT NULL COMMENT '운항 시각',
+    `Departure` varchar(100) DEFAULT NULL COMMENT '출발공항',
+    `ARRIVAL` varchar(100) DEFAULT NULL COMMENT '도착공항',
+    `IO` varchar(10) DEFAULT NULL COMMENT '공항기준 출발 혹은 도착여부',
+    PRIMARY KEY (`key_value`)
+  ) 
+  ```
 
 
 ### 브랜치전략 
@@ -100,9 +116,20 @@
 └── resource
      ├── response_json_iiac.png
      └── response_json_kca.png
-
-
 ```
+
+### 모듈 구조
+1. `main.py`
+   - 주요 기능: 전체 프로그램의 실행을 제어하는 메인 스크립트
+   - 설명: 시스템 초기화, 사용자 입력 처리, 질의-응답 루프 실행 등 전체 프로그램의 흐름을 관리합니다.
+2. `api_handler.py`
+   - 주요 기능: 외부 API와의 통신 처리
+   - 설명: 지정된 API에서 데이터를 가져옵니다.
+3. `db_operations.py`
+   - 주요 기능 : 외부 데이터를 DB에 저장
+   - 설명 : 외부 데이터를 받아 DB에 저장 및 조회합니다.
+
+
 
 <br>
 

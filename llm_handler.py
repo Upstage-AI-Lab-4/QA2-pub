@@ -78,7 +78,7 @@ def final_query(query,api_key):
 
 if __name__== "__main__":
     user_query="8월 16일 이스타 항공에서 운행하는 항공편이 총 몇 편인지 알려줘"
-    llm_api_key="up_CxnSYwc4TYOD487y9mbEKJdeVUjDy"
+    llm_api_key=config.llm_api_key
   
     # User query to User SQL query
     sql = query_to_sql(llm_api_key,user_query)

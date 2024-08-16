@@ -1,3 +1,4 @@
+# api_handler.py가 만들어지기 전에 db_handler.py를 테스트 해보기 위해 만든 파일이므로 실제 구동에서는 필요 없는 모듈
 from db_operations import insert_data_bulk, select_data
 from datetime import datetime, timedelta
 import random

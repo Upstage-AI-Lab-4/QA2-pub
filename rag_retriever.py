@@ -4,6 +4,7 @@ import pandas as pd
 def execute_sql_query(query):
     #make_sample_database()
     # CSV 파일을 읽어오기
+    side_query = 'SELECT CAST(STD AS INTEGER) AS converted_STD \n FROM flights;'
     csv_file = 'flights.csv'  # CSV 파일 경로
     df = pd.read_csv(csv_file)
 
@@ -17,7 +18,7 @@ def execute_sql_query(query):
         
         cursor = conn.cursor()
         # 쿼리 실행
-        
+        #cursor.execute(side_query)
         cursor.execute(query)
         # 쿼리 실행 후 데이터가 있을 경우 fetchall()
         #if cursor.description:

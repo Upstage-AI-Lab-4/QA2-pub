@@ -56,7 +56,7 @@ def refine_sql(sql_query):
     changed_sql_query = changed_sql_query.replace("```", "")
     changed_sql_query = changed_sql_query.replace("SQL:", "")
     return str(changed_sql_query)
-def final_query(query,api_key):
+def final_query(user_query,api_key):
     llm_2= ChatUpstage(api_key=api_key)
     messages = [
     SystemMessage(

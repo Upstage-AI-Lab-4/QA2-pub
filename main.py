@@ -6,6 +6,10 @@ from rag_retriever import RAGRetriever
 from llm_handler import query_to_sql, refine_sql, final_query
 import config
 
+from fastapi import FastAPI
+import uvicorn
+import subprocess
+
 def fetch_and_store_data():
     # 오늘 날짜 가져오기
     today = datetime.today().strftime('%Y%m%d')
@@ -50,18 +54,38 @@ def handle_user_query(query, rag_retriever):
     except Exception as e:
         return f"죄송합니다. 쿼리 처리 중 오류가 발생했습니다: {str(e)}"
 
+app = FastAPI()
+
+@app.get('/')
+async def root():
+    return {'message':'Hello World!'}
+
+@app.get('/solar')
+async def rag_solar_get(user_message):
+    return {'message': handle_user_query(user_message, app.state.rag_retriever)}
+
+@app.post('/solar')
+async def rag_solar_get(param: dict={}):
+    user_message = param.get('user_message', ' ')
+    return {'message': handle_user_query(user_message, app.state.rag_retriever)}
+
 def main():
     fetch_and_store_data()
     
     rag_retriever, _ = initialize_rag()
     
-    while True:
-        user_query = input("Enter your query (or 'quit' to exit): ")
-        if user_query.lower() == 'quit':
-            break
+    app.state.rag_retriever = rag_retriever
+    
+    subprocess.Popen(["streamlit", "run", "streamlit.py"])
+
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+    # while True:
+    #     user_query = input("Enter your query (or 'quit' to exit): ")
+    #     if user_query.lower() == 'quit':
+    #         break
         
-        response = handle_user_query(user_query, rag_retriever)
-        print("Response:", response)
+    #     response = handle_user_query(user_query, rag_retriever)
+    #     print("Response:", response)
 
 if __name__ == "__main__":
     main()

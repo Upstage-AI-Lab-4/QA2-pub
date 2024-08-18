@@ -29,6 +29,10 @@
   - 제주로 도착하는 항공편 알려줘.
   - 제주에서 출발하는 항공편 알려줘.
 
+ ### 5. 시간에 따른 조회
+  - 2024년 8월 16일 08시부터 11시 사이에 청주에서 제주로 가는 항공편 알려줘.
+  - 7C801 항공편 청주에서 제주까지 가는데 걸리는 시간 알려줘 -> (국내선 한정)
+
 
 <br>
 
@@ -64,19 +68,35 @@
 ### 외부 API
 
 - 한국공항공사(KAC), 실시간 항공운항 현황 정보 상세 조회 서비스
-  - https://www.data.go.kr/data/15113771/openapi.do
-  - 국내선 위주 
-  - 한국공항공사에서 제공하는 항공기 지연, 결항 등 항공기 상태정보와 항공편 정보를 보다 자세하게 알 수 있는 항공운항정보 상세조회 서비스입니다.
+  - [한국공항공사에서 제공하는 항공기 지연, 결항 등 항공기 상태정보와 항공편 정보를 보다 자세하게 알 수 있는 항공운항정보 상세조회 서비스](https://www.data.go.kr/data/15113771/openapi.do) 이며 국내선 위주의 운항정보가 전달됩니다.
+  - 국내선 위주의 운항정보가 전달됩니다.
   - API : https://api.odcloud.kr/api/FlightStatusListDTL/v1/getFlightStatusListDetail  
   - ![Response JSON](./resource/response_json_kac.png)
 
 
 - 인천국제공항공사(IIAC), 여객편 운항현황 서비스
-  - https://www.data.go.kr/data/15095093/openapi.do#
-  - 국제선 위주
-  - 인천공항 여객편의 운항현황에 대한 데이터로 항공사, 항공편, 출발/도착 시간 및 공항명, 탑승구 번호와 운항상태 등의 항목을 제공하는 서비스입니다.
-  - API : http://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp
+  - [인천공항 여객편의 운항현황에 대한 데이터로 항공사, 항공편, 출발/도착 시간 및 공항명, 탑승구 번호와 운항상태 등의 항목을 제공하는 서비스](https://www.data.go.kr/data/15095093/openapi.do) 이며 국내선 위주의 운항정보가 전달됩니다.
+  - API : http://api.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp
   - ![Response JSON](./resource/response_json_iiac.png)
+
+- 
+
+### DB scheme
+- RAG용으로 저장된 Database Scheme 
+
+  ```sql
+  CREATE TABLE `flights` (
+    `key_value` int NOT NULL AUTO_INCREMENT,
+    `flight_number` varchar(20) NOT NULL COMMENT '운항편 번호',
+    `airline` varchar(100) NOT NULL COMMENT '항공사',
+    `flight_date` date NOT NULL COMMENT '운항일',
+    `STD` time NOT NULL COMMENT '운항 시각',
+    `Departure` varchar(100) DEFAULT NULL COMMENT '출발공항',
+    `ARRIVAL` varchar(100) DEFAULT NULL COMMENT '도착공항',
+    `IO` varchar(10) DEFAULT NULL COMMENT '공항기준 출발 혹은 도착여부',
+    PRIMARY KEY (`key_value`)
+  ) 
+  ```
 
 
 ### 브랜치전략 
@@ -86,6 +106,7 @@
     - **main** 브랜치는 배포 단계에서만 사용하는 브랜치입니다.
     - **db** 브랜치는 외부 API를 통해 받아온 데이터를 DB에 저장하는 브랜치입니다.
     - **dev_api** 브랜치는 한국공항공사와 인천국제공항공사의 항공편 데이터를 가져오는 브랜치입니다.
+    - **llm_handler** 브랜치는 LLM 관련 작업을 처리하는 브랜치입니다.
 
 <br>
 
@@ -96,13 +117,34 @@
 ├── api_handler.py
 ├── config.py
 ├── db_operations.py
+├── llm_handler.py
 ├── main.py
+├── rag_retreiver.py
 └── resource
      ├── response_json_iiac.png
      └── response_json_kca.png
-
-
 ```
+
+### 모듈 구조
+1. `main.py`
+   - 주요 설명 : 전체 프로그램의 실행을 제어하는 메인 스크립트입니다.
+   - 주요 설명 
+      - fetch_and_store_data() : 인천공항 및 김포공항 출발 및 도착 데이터 가져와 DB에 저장
+      - initialize_rag() : UpstageEmbedding와 ChatUpstage를 초기화시킴 
+      - handle_user_query() : 유저쿼리를 sql문형태로 변환 후 RDB에 해당 user sql문을 조회하여 데이터 반환하여 최종적으로 유저 질의에 답변합니다.
+ 
+2. `api_handler.py`
+   - 주요 기능: 한국공항공사와 인천공항공사의 오픈 API와의 통신하여 실시간 운항정보 데이터를 가져옵니다. 
+
+3. `db_operations.py`
+   - 주요 기능 : 오픈 API를 통해 받아온 외부 데이터를 DB에 저장 및 조회합니다. 
+
+4. `llm_handler.py`
+   - 주요 기능 : OpenAI API를 사용하여 응답 생성, 텍스트를 SQL로 변환, 결과 포맷팅 등 LLM 관련 작업을 수행합니다.
+
+5. `rag_retreiver.py`
+   - 주요 기능 : CSV 파일을 읽어와 SQLite3 데이터베이스에 저장한 뒤 쿼리 실행하여 데이터 반환합니다.
+
 
 <br>
 
@@ -110,72 +152,37 @@
 
 ### 팀원 김동규
 - **역할**
-    - 
-- **기능**
-    - 외부 API를 통해 가져온 데이터를 DB에 저장
+    - 외부 API를 통해 가져온 데이터를 담을 DB구축 및 저장, main.py에 기능 결합
+
 <br>
 
 ### 팀원 오승민
 - **역할**
     - 
-- **기능**
-    - 외부 API 연동
+
 <br>
 
 ### 팀원 주남정
 - **역할**
-    - 프로젝트 정리
-- **기능**
-    - 
+    - 코로나 이슈로 코딩 대신 프로젝트 문서 참여
+
 <br>
 
 ### 팀원 한성범
 - **역할**
     - 
-- **기능**
-    - 
+
 <br>
 
 ## 5. 개발 기간 및 작업 관리
 
 ### 개발 기간
-- 전체 개발 기간 : 2024-08-12 ~ 2024-08-19
+- 전체 개발 기간 : 2024-08-12 ~ 2024-08-18
 - 기능 구현 : 2024-08-12 ~ 2024-08-18
-- 그외 기간 작성
+
   
 <br>
 
-### 작업 관리
-<예시>
-
-- 아래와 같은 오류가 발생했습니다.
-
-```python
-C:\Users\yong\AppData\Local\Programs\Python\Python311\Lib\site-packages\langchain_core\_api\deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.llms.openai.OpenAI` was deprecated in langchain-community 0.0.10 and will be removed in 0.2.0. An updated version of the class exists in the langchain-openai package and should be used instead. To use it run `pip install -U langchain-openai` and import as `from langchain_openai import OpenAI`.
-  warn_deprecated(
-```
-
-### 설명
-
-- langchain_community.llms.openai.OpenAI는 langchain-community 0.0.10에서 deprecate되었으며 0.2.0에서 제거될 예정입니다.
-- 업데이트된 버전의 클래스가 langchain-openai 패키지에 있으며 이것을 사용해야 합니다.
-
-
-### 해결
-
-- 명령 프롬프트(또는 터미널)에서 다음 명령을 실행해 langchain-openai 패키지를 설치합니다.
-
-```python
-pip install -U langchain-openai
-```
-
-- 아래와 같이 import문 변경하면 해결됩니다.
-```python
-from langchain_openai import OpenAI
-```
-
-
-<br>
 
 ## 5. 프로젝트 후기
 

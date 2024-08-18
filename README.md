@@ -145,6 +145,11 @@
 5. `rag_retreiver.py`
    - 주요 기능 : CSV 파일을 읽어와 SQLite3 데이터베이스에 저장한 뒤 쿼리 실행하여 데이터 반환합니다.
 
+### UI 실행 화면
+
+
+![UI 실행화면](./resource/ui_result.png)
+
 
 <br>
 

@@ -11,7 +11,7 @@ from langchain_upstage import ChatUpstage
 from langchain_core.messages import HumanMessage, SystemMessage
 
 def query_to_sql(api_key,user_query):
-    llm = ChatUpstage(api_key=api_key)
+    llm_1 = ChatUpstage(api_key=api_key)
     template = """
 You only have to use only fixed columns' name: [flight_number,airline,flight_date,STD,Departure,Arrival,IO]
 You will use the following rules to convert the input to SQL:
@@ -45,7 +45,7 @@ SQL:
     SystemMessage(content=template),
     HumanMessage(content=user_query)
     ]
-    response = llm.invoke(messages)
+    response = llm_1.invoke(messages)
     return response.content
 def refine_sql(sql_query):
     # sql문을 rag_retriever로 보내는 역할
@@ -57,7 +57,7 @@ def refine_sql(sql_query):
     changed_sql_query = changed_sql_query.replace("SQL:", "")
     return str(changed_sql_query)
 def final_query(query,api_key):
-    llm = ChatUpstage(api_key=api_key)
+    llm_2= ChatUpstage(api_key=api_key)
     messages = [
     SystemMessage(
         content=  """
@@ -76,7 +76,7 @@ def final_query(query,api_key):
         content= user_query
     )
     ]
-    response = llm.invoke(messages)
+    response = llm_2.invoke(messages)
     return response.content
 def history_chat(query):
     history =[]
@@ -103,9 +103,9 @@ def handle_user_query(query, rag_retriever):
         return f"죄송합니다. 쿼리 처리 중 오류가 발생했습니다: {str(e)}"
 
 if __name__== "__main__":
-    user_query="TW802의 출발시간 알려줘"
-    
-  
+    user_query="2024년 8월 16일 청주에서 제주로 출발하는 항공편 알려줘"
+    llm_api_key="up_CxnSYwc4TYOD487y9mbEKJdeVUjDy"
+   
     # User query to User SQL query
     sql = query_to_sql(llm_api_key,user_query)
     print(refine_sql(sql))

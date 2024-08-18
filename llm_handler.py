@@ -1,17 +1,3 @@
-# 주요 기능 : LLM 관련 작업 처리
-# 설명 : OpenAI API를 사용하여 응답 생성, 텍스트를 SQL로 변환, 결과 포맷팅 등 LLM 관련 모든 작업을 수행함
-# user의 질문: User query
-# 기능 1번 : User query 핸들링(어떠한 질문을 할 것인지 정확하게 기준을 정해야함)
-#openai api < solar llm
-# 데이터 토대로 질문 리스트-> sql 바뀌는 성능을 검증
-
-# query_to_sql-> openai api 돈을내야해..
-
-
-# 기능 4번 : 이를 database_handler.py에 전달
-# 기능 5번 : 결과 포맷팅: database_handler.py에서 받은 해당 데이터 베이스를 출력(형식에 갖추어)
-
-
 #RDB에 해당 user sql문을 조회하는 파일
 import rag_retriever
 # Query to SQL library
@@ -83,6 +69,7 @@ def final_query(query,api_key):
             If the IO is '출발', consider STD as the departure time. And return STD starts with '출발 시간은:'
             If the IO is '도착', consider STD as the arrival time. And return STD starts with '도착 시간은:'
             
+            And I will append chat history you can use this making response
             """
     ),
     HumanMessage(
@@ -91,10 +78,33 @@ def final_query(query,api_key):
     ]
     response = llm.invoke(messages)
     return response.content
+def history_chat(query):
+    history =[]
+    history+=query
+    return history
+
+def handle_user_query(query, rag_retriever):
+    try:
+        sql = query_to_sql(config.API_KEY, query)
+        refined_sql = refine_sql(sql)
+        
+        print("Executing SQL query:", refined_sql) # 디버깅을 위한 것
+    
+        result = rag_retriever.execute_sql_query(refined_sql)
+        
+        if result.startswith("Database error"):
+            return f"죄송합니다. 데이터베이스 조회 중 오류가 발생했습니다: {result}"
+        
+        query_with_result = query + " Data:" + result +history_chat()
+        response = final_query(query_with_result, config.API_KEY)
+        history_chat(query+response)  # for debugging purpose
+        return response
+    except Exception as e:
+        return f"죄송합니다. 쿼리 처리 중 오류가 발생했습니다: {str(e)}"
 
 if __name__== "__main__":
     user_query="TW802의 출발시간 알려줘"
-    llm_api_key="up_CxnSYwc4TYOD487y9mbEKJdeVUjDy"
+    
   
     # User query to User SQL query
     sql = query_to_sql(llm_api_key,user_query)
